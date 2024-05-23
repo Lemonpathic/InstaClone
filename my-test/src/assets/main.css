@@ -1,0 +1,12 @@
+@import './base.css';
+.nav-auth-button{
+    margin-right: 15px;
+}
+
+main{
+    background-color: #e1306c;
+}
+body{
+    background-color: #e1306c !important;
+
+}
