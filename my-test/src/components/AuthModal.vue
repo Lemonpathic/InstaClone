@@ -1,9 +1,16 @@
 <script setup>
 import { ref, shallowRef } from 'vue';
-
 const props = defineProps(['isLogin']);
+import {useUserStore} from "@/stores/users.js";
+
+const userStore = useUserStore()
+const {} = userStore
 console.log(props);
 const dialog = shallowRef(false);
+
+const rules = {
+  required: value => !!value
+}
 </script>
 
 <template>
