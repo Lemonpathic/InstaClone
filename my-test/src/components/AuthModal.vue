@@ -3,10 +3,11 @@ import {reactive, ref, shallowRef} from 'vue';
 
 const props = defineProps(['isLogin']);
 import {useUserStore} from "@/stores/users.js";
+import {storeToRefs} from "pinia";
 import {getAttributeValue} from "jsdom/lib/jsdom/living/attributes.js";
 
 const userStore = useUserStore()
-const {} = userStore
+const { errorMessage} = storeToRefs(userStore)
 
 const dialog = shallowRef(false);
 
@@ -19,9 +20,15 @@ const userCredentials = reactive({
   password:""
 })
 
+const confirmPassword = ref('')
 
-const handleOkay = (i) =>{
-  closeDialog()
+const handleOkay = async (i) =>{
+  await userStore.handleSignup(userCredentials, confirmPassword)
+  if (errorMessage.value===""){
+    closeDialog()
+
+  }
+
 
 }
 
@@ -34,6 +41,7 @@ const passwordRules = {
 const closeDialog = () => {
   dialog.value = false
   userCredentials.password = ''
+  confirmPassword.value = ''
 }
 
 const handleDialogUpdate = (value) => {
@@ -81,18 +89,20 @@ const handleDialogUpdate = (value) => {
 
     <v-card prepend-icon="mdi-account" title="User Profile">
       <v-card-text>
+        <v-text-field label="Username*" required v-model="userCredentials.username"></v-text-field>
+
         <v-row dense>
           <v-col cols="12" sm="6">
-            <v-text-field label="First name*" required></v-text-field>
+            <v-text-field label="First name*" required v-model="userCredentials.fName"></v-text-field>
           </v-col>
           <v-col cols="12" sm="6">
-            <v-text-field label="Last name*" required></v-text-field>
+            <v-text-field label="Last name*" required v-model="userCredentials.lName"></v-text-field>
           </v-col>
           <v-col cols="12" sm="6">
-            <v-select :items="['0-17', '18-29', '30-54', '54+']" label="Age*" required></v-select>
+            <v-select :items="['0-17', '18-29', '30-54', '54+']" label="Age*" required v-model="userCredentials.age"></v-select>
           </v-col>
           <v-col cols="12" sm="6">
-            <v-text-field label="Email*" required></v-text-field>
+            <v-text-field label="Email*" required v-model="userCredentials.email"></v-text-field>
           </v-col>
           <v-col cols="12" sm="6">
             <v-text-field
@@ -100,6 +110,7 @@ const handleDialogUpdate = (value) => {
                 type="password"
                 :rules="[passwordRules.required, passwordRules.length16]"
                 required
+                v-model="userCredentials.password"
             ></v-text-field>
           </v-col>
           <v-col cols="12" sm="6">
@@ -108,11 +119,15 @@ const handleDialogUpdate = (value) => {
                 type="password"
                 :rules="[passwordRules.matches]"
                 required
+                v-model="confirmPassword"
             ></v-text-field>
           </v-col>
         </v-row>
-
+        <div class="ma-3"></div>
         <small class="text-caption text-medium-emphasis">*indicates required field</small>
+        <div>
+          <small class="text-red" v-if="errorMessage">ERROR:{{errorMessage}}</small>
+        </div>
       </v-card-text>
 
       <v-divider></v-divider>
